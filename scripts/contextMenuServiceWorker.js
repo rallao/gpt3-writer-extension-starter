@@ -38,12 +38,20 @@ const generateCompletionAction = async (info) => {
   try {
     const { selectionText } = info;
     const basePromptPrefix = `
-        Write me a detailed table of contents for a blog post with the title below.
-    
-        Title:
-        `;
+      Write me a detailed table of contents for a blog post with the title below.
+
+      Title:
+      `;
+
+    // Add this to call GPT-3
+    const baseCompletion = await generate(
+      `${basePromptPrefix}${selectionText}`
+    );
+
+    // Let's see what we get!
+    console.log(baseCompletion.text);
   } catch (error) {
-    console.error(error);
+    console.log(error);
   }
 };
 
