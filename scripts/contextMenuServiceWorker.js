@@ -10,6 +10,7 @@ const getKey = () => {
 };
 
 const sendMessage = (content) => {
+  //Looking which tab is active
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0].id;
 
