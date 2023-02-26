@@ -6,36 +6,34 @@ const checkForKey = () => {
   });
 };
 
+const encode = (input) => {
+  return btoa(input);
+};
+
 const saveKey = () => {
   const input = document.getElementById("key_input");
 
   if (input) {
     const { value } = input;
 
-    // Encode string value 'input' using base64 for security reasons
+    // Encode String
     const encodedValue = encode(value);
 
-    // Save encoded input to google storage and change ui
+    // Save to google storage
     chrome.storage.local.set({ "openai-key": encodedValue }, () => {
       document.getElementById("key_needed").style.display = "none";
       document.getElementById("key_entered").style.display = "block";
     });
   }
 };
-const encode = (input) => {
-  return btoa(input);
-};
 
-// Change ui if no key is saved
-const changeKey = () => {
-  document.getElementById("key_needed").style.display = "block";
-  document.getElementById("key_entered").style.display = "none";
-};
+const changeKey = () => {};
 
 document.getElementById("save_key_button").addEventListener("click", saveKey);
 document
   .getElementById("change_key_button")
   .addEventListener("click", changeKey);
+
 checkForKey().then((response) => {
   if (response) {
     document.getElementById("key_needed").style.display = "none";
