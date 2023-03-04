@@ -1,3 +1,4 @@
+// Function to get + decode API key
 const getKey = () => {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(["openai-key"], (result) => {
@@ -10,7 +11,7 @@ const getKey = () => {
 };
 
 const sendMessage = (content) => {
-  //Looking which tab is active
+  console.log("sending message", content);
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const activeTab = tabs[0].id;
 
@@ -26,6 +27,7 @@ const sendMessage = (content) => {
   });
 };
 
+// Setup our generate function
 const generate = async (prompt) => {
   // Get your API key from storage
   const key = await getKey();
@@ -51,6 +53,7 @@ const generate = async (prompt) => {
   return completion.choices.pop();
 };
 
+// New function here
 const generateCompletionAction = async (info) => {
   try {
     // Send mesage with generating text (this will be like a loading indicator)
@@ -58,25 +61,28 @@ const generateCompletionAction = async (info) => {
 
     const { selectionText } = info;
     const basePromptPrefix = `
-        Write me a detailed table of contents for a blog post with the title below.
-        
-        Title:
-        `;
+      Write me a detailed table of contents for a blog post with the title below.
+  
+      Title:
+      `;
 
+    // Add this to call GPT-3
     const baseCompletion = await generate(
       `${basePromptPrefix}${selectionText}`
     );
 
+    // Add your second prompt here
     const secondPrompt = `
-          Take the table of contents and title of the blog post below and generate a blog post written in thwe style of Paul Graham. Make it feel like a story. Don't just list the points. Go deep into each one. Explain why.
-          
-          Title: ${selectionText}
-          
-          Table of Contents: ${baseCompletion.text}
-          
-          Blog Post:
-            `;
+        Take the table of contents and title of the blog post below and generate a blog post written in thwe style of Paul Graham. Make it feel like a story. Don't just list the points. Go deep into each one. Explain why.
+        
+        Title: ${selectionText}
+        
+        Table of Contents: ${baseCompletion.text}
+        
+        Blog Post:
+        `;
 
+    // Call your second prompt
     const secondPromptCompletion = await generate(secondPrompt);
 
     // Send the output when we're all done
@@ -89,8 +95,9 @@ const generateCompletionAction = async (info) => {
   }
 };
 
-// Don't touch this
+// Add this in scripts/contextMenuServiceWorker.js
 chrome.runtime.onInstalled.addListener(() => {
+  console.log("context menu installed");
   chrome.contextMenus.create({
     id: "context-run",
     title: "Generate blog post",
@@ -98,4 +105,5 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// Add listener
 chrome.contextMenus.onClicked.addListener(generateCompletionAction);
